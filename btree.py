@@ -4,7 +4,7 @@ class BTree:
     root = None
 
     def __init__(self, value):
-        self.root = Node(value, None)
+        self.root = Node(value)
 
     def add_node(self, value, node=None, parent=None):
         if not node:
@@ -21,20 +21,20 @@ class BTree:
                 return node.add_value(value)
             else:
                 if node == self.root:
-                    self.root = Node(node.get_center_value(value), node.parent)
-                    self.root.left = Node(node.get_left_value(value), node.parent)
-                    self.root.right = Node(node.get_right_value(value), node.parent)
+                    self.root = Node(node.get_center_value(value))
+                    self.root.left = Node(node.get_left_value(value))
+                    self.root.right = Node(node.get_right_value(value))
                 else:
                     center = node.get_center_value(value)
                     left = node.get_left_value(value)
                     right = node.get_right_value(value)
                     parent_node = self.promote_value(center, parent)
                     if (parent_node.value1 == center):
-                        parent_node.left = Node(left, parent_node)
-                        parent_node.middle = Node(right, parent_node)
+                        parent_node.left = Node(left)
+                        parent_node.middle = Node(right)
                     elif (parent_node.value2 == center):
-                        parent_node.middle = Node(left, parent_node)
-                        parent_node.right = Node(right, parent_node)
+                        parent_node.middle = Node(left)
+                        parent_node.right = Node(right)
 
     def promote_value(self, value, node):
         if not node:
@@ -44,9 +44,7 @@ class BTree:
         elif node.has_available_spaces():
             return node.add_value(value)
         else:
-            parent_node = self.promote_value(Node(node.get_center_value(value), node.parent))
-            parent_node.left = Node(node.get_left_value(value), node.parent)
-            parent_node.middle = Node(node.get_right_value(value), node.parent)
+            pass
 
     def print_tree(self):
         if self.root:
@@ -70,16 +68,14 @@ class BTree:
             self.print_node(node.right, level + 1)
 
 class Node:
-    parent = None
     value1 = None
     value2 = None
     left = None
     middle = None
     right = None
 
-    def __init__(self, value1, parent):
+    def __init__(self, value1):
         self.value1 = value1
-        self.parent = parent
 
     def add_value(self, value):
         if self.has_available_spaces():
