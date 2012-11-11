@@ -20,21 +20,7 @@ class BTree:
             if node.has_available_spaces():
                 return node.add_value(value)
             else:
-                if node == self.root:
-                    self.root = Node(node.get_center_value(value))
-                    self.root.left = Node(node.get_left_value(value))
-                    self.root.right = Node(node.get_right_value(value))
-                else:
-                    center = node.get_center_value(value)
-                    left = node.get_left_value(value)
-                    right = node.get_right_value(value)
-                    parent_node = self.promote_value(center, parent)
-                    if (parent_node.value1 == center):
-                        parent_node.left = Node(left)
-                        parent_node.middle = Node(right)
-                    elif (parent_node.value2 == center):
-                        parent_node.middle = Node(left)
-                        parent_node.right = Node(right)
+                self.promote_value(value, node)
 
     def promote_value(self, value, node):
         if not node:
@@ -44,7 +30,43 @@ class BTree:
         elif node.has_available_spaces():
             return node.add_value(value)
         else:
-            pass
+            center = node.get_center_value(value)
+            left = node.get_left_value(value)
+            right = node.get_right_value(value)
+            center_parent = self.get_parent(center)
+            if not center_parent:
+                self.root = Node(center)
+                self.root.left = Node(left)
+                self.root.middle = Node(right)
+            elif center_parent.has_available_spaces():
+                center_parent.add_value(center)
+                value_position = center_parent.get_value_position(center)
+                if value_position == 'left':
+                    center_parent.left = Node(left)
+                    center_parent.middle = Node(right)
+                elif value_position == 'right':
+                    center_parent.middle = Node(left)
+                    center_parent.middle = Node(right)
+            else:
+                self.promote_value(center, center_parent)
+
+
+
+    def get_parent(self, value, node=None, parent_node=None):
+        if not node and not parent_node:
+            parent_node = None
+            node = self.root
+        if not node:
+            return None
+        elif node.value1 == value or node.value2 == value:
+            return parent_node
+        else:
+            if node.has_children():
+                return (self.get_parent(value, node.left, node) or\
+                        self.get_parent(value, node.middle, node) or\
+                        self.get_parent(value, node.right, node))
+            else:
+                return None
 
     def print_tree(self):
         if self.root:
@@ -76,6 +98,14 @@ class Node:
 
     def __init__(self, value1):
         self.value1 = value1
+
+    def get_value_position(self, value):
+        if self.value1 == value:
+            return 'left'
+        elif self.value2 == value:
+            return 'right'
+        else:
+            return None
 
     def add_value(self, value):
         if self.has_available_spaces():
@@ -132,7 +162,5 @@ if __name__ == '__main__':
     tree.add_node(2)
     tree.add_node(3)
     tree.add_node(4)
-    tree.add_node(5)
-    tree.add_node(6)
     tree.print_tree()
 

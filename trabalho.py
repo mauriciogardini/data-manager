@@ -2,7 +2,7 @@
 
 from random import choice, randint, uniform
 import os
-from time import time
+from time import time, sleep
 
 REGISTERS_AMMOUNT = 2000000
 REGISTER_LENGTH = 64
@@ -19,12 +19,110 @@ INDEXES_FILE_EXTENSION = u'.txt'
 INDEXES_FILEPATH = INDEXES_FILENAME + INDEXES_FILE_EXTENSION
 TEMP_FILEPATH = u'temp.txt'
 GENDERS = ['M', 'F']
+LINKED_LIST = None
 
 class Register:
     """
         Class that represents a register.
     """
     pass
+
+class LinkedListNode:
+    def __init__(self, data, next_node):
+        self.data = data
+        self.next_node = next_node
+
+class LinkedList:
+    def __init__(self):
+        self.head = None
+        self.tail = None
+
+    def insert_in_place(self, value):
+        if not self.head:
+            self.append(value)
+        elif self.head.data > value:
+            self.prepend(value)
+        else:
+            node = self.head
+            next_node = node.next_node
+            found = False
+            while not found or node:
+                if value == node.data:
+                    return True
+                elif not next_node:
+                    self.append(value)
+                    return True
+                elif value > node.data and value < next_node.data:
+                    self.inset(node, value)
+                    return True
+                node = node.next_node
+                next_node = node.next_node
+
+
+    def inset(self, node, data):
+        new_node = LinkedListNode(data, node.next_node)
+        node.next_node = new_node
+        if self.tail == node:
+            self.tail = new_node
+
+    def append(self, data):
+        if self.tail is None:
+            new_node = LinkedListNode(data, None)
+            self.head = self.tail = new_node
+        else:
+            self.inset(self.tail, data)
+
+    def prepend(self, data):
+        new_node = LinkedListNode(data, self.head)
+        self.head = new_node
+
+    def search(self, data):
+        node = list.head
+        while node is not None:
+            if node.data.strip() == data.strip():
+                return node
+            node = node.next_node
+
+    def print_all(self):
+        node = self.head
+        while node is not None:
+            print(node.data)
+            node = node.next_node
+
+def generate_linked_list():
+    """
+        Generates a linked list based on the 'name' field
+        on the registers
+
+        This is a timed function.
+    """
+    print
+    initial_time = time()
+    initial_partial_time = initial_time
+    data_file = open(DATA_FILEPATH, 'Ur')
+    data_file.seek(DOCUMENT_LENGTH + SEPARATOR_LENGTH, 0)
+    reg = data_file.read(NAME_LENGTH)
+    LINKED_LIST = LinkedList()
+    index_counter = 0
+    while index_counter < 100:
+        LINKED_LIST.insert_in_place(reg)
+        index_counter += 1
+        if index_counter % 1000 == 0:
+            present_partial_time = time()
+            elapsed_time = present_partial_time - initial_partial_time
+            initial_partial_time = present_partial_time
+            print('Time elapsed to index from %s to %s: %s' % \
+                  (str(index_counter - 1000), str(index_counter), str(elapsed_time)))
+ 
+        data_file.seek(REGISTER_LENGTH - NAME_LENGTH, 1)
+        reg = data_file.read(NAME_LENGTH)
+    LINKED_LIST.print_all()
+    final_time = time()
+    data_file.close()
+
+    print('Time to index %s registers: %s' % \
+        (str(REGISTERS_AMMOUNT), str(final_time - initial_time)))
+
 
 def create_register(source1, source2):
     """
@@ -338,5 +436,4 @@ def get_size(filepath):
     return os.path.getsize(filepath)
 
 if __name__ == '__main__':
-    exhaustive_search('8582782035', 'document')
-    binary_search('8582782035')
+    generate_linked_list()
