@@ -28,12 +28,36 @@ class Register:
     pass
 
 
+class LinkedListNode:
+    """
+        Represents a linked list node.
+    """
+    def __init__(self, data, next_node):
+        self.data = data
+        self.next_node = next_node
+        self.content = ContentLinkedList()
+
+class ContentLinkedListNode:
+    """
+        Represents a content linked list node.
+    """
+    def __init__(self, data, next_node):
+        self.data = data
+        self.next_node = next_node
+
+
 class ContentLinkedList:
+    """
+        Class that represents a content linked list.
+    """
     def __init__(self):
         self.head = None
         self.tail = None
 
     def append(self, data):
+        """
+            Adds a node to the end of the content linked list.
+        """
         new_node = ContentLinkedListNode(data, None)
         if self.tail is None:
             self.head = self.tail = new_node
@@ -41,6 +65,9 @@ class ContentLinkedList:
             self.tail.next_node = new_node
 
     def search(self, data):
+        """
+            Searches for a node with a certain string and returns it.
+        """
         node = self.head
         while node is not None:
             if node.data.strip() == data.strip():
@@ -48,9 +75,15 @@ class ContentLinkedList:
             node = node.next_node
 
     def print_all(self):
+        """
+            Prints all the nodes in a content list.
+        """
         print("Nodes: " + self.stringify_nodes())
 
     def stringify_nodes(self):
+        """
+            Returns a string with all the nodes in the linked list.
+        """
         content_string = ''
         first = True
         node = self.head
@@ -64,23 +97,19 @@ class ContentLinkedList:
         return content_string
 
 
-class LinkedListNode:
-    def __init__(self, data, next_node):
-        self.data = data
-        self.next_node = next_node
-        self.content = ContentLinkedList()
-
-class ContentLinkedListNode:
-    def __init__(self, data, next_node):
-        self.data = data
-        self.next_node = next_node
-
 class LinkedList:
+    """
+        Represents a linked list.
+    """
     def __init__(self):
         self.head = None
         self.tail = None
 
     def insert_in_place(self, value, content):
+        """
+            Inserts a certain value with its content in the appropriated
+            place in the linked list.
+        """
         if not self.head:
             self.append(value, content)
         elif self.head.data > value:
@@ -103,9 +132,15 @@ class LinkedList:
                 next_node = node.next_node
 
     def add_to_existent(self, node, value):
+        """
+            Adds a value to the content of an existing linked list node.
+        """
         node.content.append(value)
 
     def inset(self, node, data, content):
+        """
+            Adds a node in the middle of the linked list.
+        """
         new_node = LinkedListNode(data, node.next_node)
         new_node.content.append(content)
         node.next_node = new_node
@@ -113,6 +148,9 @@ class LinkedList:
             self.tail = new_node
 
     def append(self, data, content):
+        """
+            Adds a node to the end of the linked list.
+        """
         if self.tail is None:
             new_node = LinkedListNode(data, None)
             new_node.content.append(content)
@@ -121,11 +159,17 @@ class LinkedList:
             self.inset(self.tail, data, content)
 
     def prepend(self, data, content):
+        """
+            Adds a node in the beginning of the linked list.
+        """
         new_node = LinkedListNode(data, self.head)
         new_node.content.append(content)
         self.head = new_node
 
     def search(self, data):
+        """
+            Searches for a certain data and prints the result.
+        """
         node = self.head
         while node is not None:
             if node.data.strip() == data.strip():
@@ -137,6 +181,9 @@ class LinkedList:
             node = node.next_node
 
     def print_all(self):
+        """
+            Prints all the content of the linked list.
+        """
         count = 0
         node = self.head
         while node is not None:
@@ -149,7 +196,7 @@ class LinkedList:
 def generate_linked_list():
     """
         Generates a linked list based on the 'name' field
-        on the registers
+        on the registers.
 
         This is a timed function.
     """
@@ -171,15 +218,17 @@ def generate_linked_list():
             elapsed_time = present_partial_time - initial_partial_time
             initial_partial_time = present_partial_time
             print('Time elapsed to index from %s to %s: %s' % \
-                  (str(index_counter - 1000), str(index_counter), str(elapsed_time)))
+                  (str(index_counter - 1000), str(index_counter), \
+                   str(elapsed_time)))
  
-        data_file.seek(REGISTER_LENGTH - NAME_LENGTH - SEPARATOR_LENGTH - DOCUMENT_LENGTH, 1)
+        data_file.seek(REGISTER_LENGTH - NAME_LENGTH - SEPARATOR_LENGTH - \
+                       DOCUMENT_LENGTH, 1)
         content = data_file.read(DOCUMENT_LENGTH)
         data_file.seek(SEPARATOR_LENGTH, 1)
         reg = data_file.read(NAME_LENGTH)
 
     LINKED_LIST.print_all()
-    LINKED_LIST.search('Unprojecting')
+    LINKED_LIST.search('Zambezian')
     final_time = time()
     data_file.close()
 
@@ -209,7 +258,8 @@ def generate_register_text(register):
     fixed_name = register.name + ((15 - len(register.name)) * ' ')
     fixed_address = register.address + ((20 - len(register.address)) * ' ')
     fixed_age = str(register.age) + ((2 - len(str(register.age))) * ' ')
-    fixed_salary = str(register.salary) + ((10 - len(str(register.salary))) * ' ')
+    fixed_salary = str(register.salary) +\
+                   ((10 - len(str(register.salary))) * ' ')
     return (u'%i|%s|%s|%s|%s|%s|' % (register.document, fixed_name,
                                 fixed_address, register.sex,
                                 fixed_age, fixed_salary))
@@ -268,13 +318,17 @@ def generate_indexes():
     ammount_registers = get_size(DATA_FILEPATH)/REGISTER_LENGTH
     ammount_index_files = ammount_registers / 100
 
-    os.system('N=' + str(ammount_index_files) + '; i=0; while [ $i != $N ]; do touch ' + \
-              INDEXES_FILENAME + '$i' + INDEXES_FILE_EXTENSION + '; i=$((i + 1)); done')
+    os.system('N=' + str(ammount_index_files) +\
+              '; i=0; while [ $i != $N ]; do touch ' + \
+              INDEXES_FILENAME + '$i' + INDEXES_FILE_EXTENSION +\
+              '; i=$((i + 1)); done')
     index_counter = 0
     while reg != '':
         index_file_number = get_index_file(reg, ammount_index_files)
-        index_file = open(INDEXES_FILENAME + str(index_file_number) + INDEXES_FILE_EXTENSION, 'r')
-        size = get_size(INDEXES_FILENAME + str(index_file_number) + INDEXES_FILE_EXTENSION)
+        index_file = open(INDEXES_FILENAME + str(index_file_number) + \
+                          INDEXES_FILE_EXTENSION, 'r')
+        size = get_size(INDEXES_FILENAME + str(index_file_number) +\
+                        INDEXES_FILE_EXTENSION)
         indexes_ammount = (size/INDEX_LENGTH)
         right = indexes_ammount
         left = 0
@@ -299,21 +353,24 @@ def generate_indexes():
         os.system('touch ' + TEMP_FILEPATH)
         temp_file = open(TEMP_FILEPATH, 'w')
         index_file.close()
-        index_file = open(INDEXES_FILENAME + str(index_file_number) + INDEXES_FILE_EXTENSION, 'r')
+        index_file = open(INDEXES_FILENAME + str(index_file_number) +\
+                          INDEXES_FILE_EXTENSION, 'r')
         index_file.seek(0, 0)
         before = index_file.read(INDEX_LENGTH * (insert_position))
         after = index_file.read()
 
-        #Adds the indexes before the new index, followed by the new index and, then,
-        #by the rest of the indexes.
+        #Adds the indexes before the new index, followed by the new index and, 
+        #then, by the rest of the indexes.
         temp_file.write(before)
         temp_file.write(generate_index_text(reg, index_counter))
         temp_file.write(after)
         temp_file.close()
 
         #Removes the original indexes.txt file.
-        os.remove(INDEXES_FILENAME + str(index_file_number) + INDEXES_FILE_EXTENSION)
-        os.rename(TEMP_FILEPATH, INDEXES_FILENAME + str(index_file_number) + INDEXES_FILE_EXTENSION)
+        os.remove(INDEXES_FILENAME + str(index_file_number) +\
+                  INDEXES_FILE_EXTENSION)
+        os.rename(TEMP_FILEPATH, INDEXES_FILENAME + str(index_file_number) +\
+                  INDEXES_FILE_EXTENSION)
 
         index_counter += 1
         if index_counter % 10000 == 0:
@@ -321,7 +378,8 @@ def generate_indexes():
             elapsed_time = present_partial_time - initial_partial_time
             initial_partial_time = present_partial_time
             print('Time elapsed to index from %s to %s: %s' % \
-                  (str(index_counter - 10000), str(index_counter), str(elapsed_time)))
+                  (str(index_counter - 10000), str(index_counter),\
+                   str(elapsed_time)))
             
         data_file.seek(REGISTER_LENGTH - DOCUMENT_LENGTH, 1)
         reg = data_file.read(DOCUMENT_LENGTH)
@@ -391,17 +449,21 @@ def exhaustive_search(query_string, query_field):
         name = data_file.read(NAME_LENGTH)
         while name and not result:
             if is_substring(name, query_string):
-                data_file.seek(-(DOCUMENT_LENGTH + SEPARATOR_LENGTH + NAME_LENGTH), 1)
+                data_file.seek(-(DOCUMENT_LENGTH + SEPARATOR_LENGTH +\
+                               NAME_LENGTH), 1)
                 result = data_file.read(REGISTER_LENGTH)
             data_file.seek(REGISTER_LENGTH - NAME_LENGTH, 1)
             name = data_file.read(NAME_LENGTH)
 
     elif query_field == 'address':
-        data_file.seek(DOCUMENT_LENGTH + SEPARATOR_LENGTH + NAME_LENGTH + SEPARATOR_LENGTH, 0)
+        data_file.seek(DOCUMENT_LENGTH + SEPARATOR_LENGTH + NAME_LENGTH +\
+                       SEPARATOR_LENGTH, 0)
         address = data_file.read(ADDRESS_LENGTH)
         while address and not result:
             if is_substring(address, query_string):
-                data_file.seek(-(DOCUMENT_LENGTH + SEPARATOR_LENGTH + NAME_LENGTH + SEPARATOR_LENGTH + ADDRESS_LENGTH), 1)
+                data_file.seek(-(DOCUMENT_LENGTH + SEPARATOR_LENGTH +\
+                               NAME_LENGTH + SEPARATOR_LENGTH +\
+                               ADDRESS_LENGTH), 1)
                 result = data_file.read(REGISTER_LENGTH)
             data_file.seek(REGISTER_LENGTH - ADDRESS_LENGTH, 1)
             address = data_file.read(ADDRESS_LENGTH)
@@ -414,11 +476,13 @@ def exhaustive_search(query_string, query_field):
     else:
         print('Found\nRegister: ' + result)
         final_time = time()
-        print('Time to execute the exhaustive search on %s for the %s "%s": %s' % \
-            (DATA_FILEPATH, query_field, query_string, str(final_time - initial_time)))
+        print('Time to execute the exhaustive search on %s for the %s "%s": %s'\
+              % (DATA_FILEPATH, query_field, query_string,\
+                str(final_time - initial_time)))
     data_file.close()
 
-def binary_search(search, source = INDEXES_FILEPATH, index_length = INDEX_LENGTH, verbose = True):
+def binary_search(search, source = INDEXES_FILEPATH,\
+                  index_length = INDEX_LENGTH, verbose = True):
     """
         Executes a binary search using 'search' as the search key,
         'source' as the place where the search will be made
@@ -469,7 +533,8 @@ def binary_search(search, source = INDEXES_FILEPATH, index_length = INDEX_LENGTH
             if not verbose:
                 print get_register(int(index[11:21]))
             else:
-                print('Found\nIndex: ' + index + '\nRegister: ' + get_register(int(index[11:21])))
+                print('Found\nIndex: ' + index + '\nRegister: '+\
+                      get_register(int(index[11:21])))
                 print('Time to execute the binary search on %s: %s' % \
                     (source, str(final_time - initial_time)))
             return 1
