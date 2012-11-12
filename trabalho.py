@@ -27,7 +27,50 @@ class Register:
     """
     pass
 
+
+class ContentLinkedList:
+    def __init__(self):
+        self.head = None
+        self.tail = None
+
+    def append(self, data):
+        new_node = ContentLinkedListNode(data, None)
+        if self.tail is None:
+            self.head = self.tail = new_node
+        else:
+            self.tail.next_node = new_node
+
+    def search(self, data):
+        node = self.head
+        while node is not None:
+            if node.data.strip() == data.strip():
+                return node
+            node = node.next_node
+
+    def print_all(self):
+        print("Nodes: " + self.stringify_nodes())
+
+    def stringify_nodes(self):
+        content_string = ''
+        first = True
+        node = self.head
+        while node is not None:
+            if first:
+                content_string += str(node.data)
+                first = False
+            else:
+                content_string += str(', ' + str(node.data))
+            node = node.next_node
+        return content_string
+
+
 class LinkedListNode:
+    def __init__(self, data, next_node):
+        self.data = data
+        self.next_node = next_node
+        self.content = ContentLinkedList()
+
+class ContentLinkedListNode:
     def __init__(self, data, next_node):
         self.data = data
         self.next_node = next_node
@@ -37,57 +80,71 @@ class LinkedList:
         self.head = None
         self.tail = None
 
-    def insert_in_place(self, value):
+    def insert_in_place(self, value, content):
         if not self.head:
-            self.append(value)
+            self.append(value, content)
         elif self.head.data > value:
-            self.prepend(value)
+            self.prepend(value, content)
         else:
             node = self.head
             next_node = node.next_node
             found = False
             while not found or node:
                 if value == node.data:
+                    self.add_to_existent(node, content)
                     return True
                 elif not next_node:
-                    self.append(value)
+                    self.append(value, content)
                     return True
                 elif value > node.data and value < next_node.data:
-                    self.inset(node, value)
+                    self.inset(node, value, content)
                     return True
                 node = node.next_node
                 next_node = node.next_node
 
+    def add_to_existent(self, node, value):
+        node.content.append(value)
 
-    def inset(self, node, data):
+    def inset(self, node, data, content):
         new_node = LinkedListNode(data, node.next_node)
+        new_node.content.append(content)
         node.next_node = new_node
         if self.tail == node:
             self.tail = new_node
 
-    def append(self, data):
+    def append(self, data, content):
         if self.tail is None:
             new_node = LinkedListNode(data, None)
+            new_node.content.append(content)
             self.head = self.tail = new_node
         else:
-            self.inset(self.tail, data)
+            self.inset(self.tail, data, content)
 
-    def prepend(self, data):
+    def prepend(self, data, content):
         new_node = LinkedListNode(data, self.head)
+        new_node.content.append(content)
         self.head = new_node
 
     def search(self, data):
-        node = list.head
+        node = self.head
         while node is not None:
             if node.data.strip() == data.strip():
-                return node
+                print('Results: ' + node.content.stringify_nodes())
+                inner_node = node.content.head
+                while inner_node is not None:
+                    binary_search(inner_node.data, verbose=False)
+                    inner_node = inner_node.next_node
             node = node.next_node
 
     def print_all(self):
+        count = 0
         node = self.head
         while node is not None:
-            print(node.data)
+            print(str(node.data) + ' | Nodes: ' + \
+                node.content.stringify_nodes())
             node = node.next_node
+            count +=1
+
 
 def generate_linked_list():
     """
@@ -100,12 +157,14 @@ def generate_linked_list():
     initial_time = time()
     initial_partial_time = initial_time
     data_file = open(DATA_FILEPATH, 'Ur')
-    data_file.seek(DOCUMENT_LENGTH + SEPARATOR_LENGTH, 0)
+    data_file.seek(0, 0)
+    content = data_file.read(DOCUMENT_LENGTH)
+    data_file.seek(SEPARATOR_LENGTH, 1)
     reg = data_file.read(NAME_LENGTH)
     LINKED_LIST = LinkedList()
     index_counter = 0
-    while index_counter < 100:
-        LINKED_LIST.insert_in_place(reg)
+    while index_counter < 1000:
+        LINKED_LIST.insert_in_place(reg, content)
         index_counter += 1
         if index_counter % 1000 == 0:
             present_partial_time = time()
@@ -114,9 +173,13 @@ def generate_linked_list():
             print('Time elapsed to index from %s to %s: %s' % \
                   (str(index_counter - 1000), str(index_counter), str(elapsed_time)))
  
-        data_file.seek(REGISTER_LENGTH - NAME_LENGTH, 1)
+        data_file.seek(REGISTER_LENGTH - NAME_LENGTH - SEPARATOR_LENGTH - DOCUMENT_LENGTH, 1)
+        content = data_file.read(DOCUMENT_LENGTH)
+        data_file.seek(SEPARATOR_LENGTH, 1)
         reg = data_file.read(NAME_LENGTH)
+
     LINKED_LIST.print_all()
+    LINKED_LIST.search('Unprojecting')
     final_time = time()
     data_file.close()
 
@@ -355,7 +418,7 @@ def exhaustive_search(query_string, query_field):
             (DATA_FILEPATH, query_field, query_string, str(final_time - initial_time)))
     data_file.close()
 
-def binary_search(search, source = INDEXES_FILEPATH, index_length = INDEX_LENGTH):
+def binary_search(search, source = INDEXES_FILEPATH, index_length = INDEX_LENGTH, verbose = True):
     """
         Executes a binary search using 'search' as the search key,
         'source' as the place where the search will be made
@@ -363,7 +426,9 @@ def binary_search(search, source = INDEXES_FILEPATH, index_length = INDEX_LENGTH
 
         This is a timed function.
     """
-    print
+
+    if verbose:
+        print
     initial_time = time()
     index_file = open(INDEXES_FILEPATH, 'r')
     index_file.seek(0, 0)
@@ -401,9 +466,12 @@ def binary_search(search, source = INDEXES_FILEPATH, index_length = INDEX_LENGTH
             return -1
         if int(search) == int(index[:10]):
             final_time = time()
-            print('Found\nIndex: ' + index + '\nRegister: ' + get_register(int(index[11:21])))
-            print('Time to execute the binary search on %s: %s' % \
-                (source, str(final_time - initial_time)))
+            if not verbose:
+                print get_register(int(index[11:21]))
+            else:
+                print('Found\nIndex: ' + index + '\nRegister: ' + get_register(int(index[11:21])))
+                print('Time to execute the binary search on %s: %s' % \
+                    (source, str(final_time - initial_time)))
             return 1
         elif int(search) < int(index[:10]):
             right_path = center
